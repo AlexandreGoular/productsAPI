@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 public class ProductController {
@@ -27,4 +29,20 @@ public class ProductController {
         BeanUtils.copyProperties(productRecordDto, productModel); // Ele pega os parametros do record e copia para o productModel
         return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel)); // Ele salva no Repositorio o productModel
     }
+
+    @GetMapping("/products")
+    public ResponseEntity<List<ProductModel>> getAllProducts() {  // Faz uma lista de ProductModel
+        return ResponseEntity.status(HttpStatus.OK).body(productRepository.findAll()); // Mostra todos dados salvos em productRepository
+    }
+
+    @GetMapping("/products/{id}")
+    public ResponseEntity<Object> getOneProduct(@PathVariable(value = "id") UUID id) {
+        Optional<ProductModel> productO = productRepository.findById(id);
+        if(productO.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(productO.get());
+    }
+
+    
 }
